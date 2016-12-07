@@ -58,9 +58,10 @@ def get_tv_shows():
 	return files
 
 
-folders = []
-files = []
+
 def subfolders():
+	folders = []
+	files = []
 	paths = get_paths()
 	l = []
 	for i in paths:
@@ -82,6 +83,7 @@ def subfolders():
 			if s not in l:
 				l.append(s)
 	return l
+
 	
 def mkdir():
 	l = subfolders()
@@ -97,12 +99,47 @@ def mkdir():
 	#pprint(l)
 	
 
+def removeInFolders():
+	folders = []
+	files = []
+	paths = get_paths()
+	l = subfolders()
+	for i in paths:
+		if '.DS_Store' in str(i):
+				continue
+		a = (i.split('/')[1:])
+		s =  re.split(r'([\d])', a[0])[0]
+		
+		if len(a) > 1:
+			p = root +'/download/'+s+'/'
+			r = root + '/download/'+a[0]
+			#print('p er : ', p)
+			#print('r er : ', r)
+			
+			try:
+				shutil.move(p, r )
+			except:
+				print('Tokst ekki að flytja skrár')			
+			
+		else:
+			p = root +'/download/'+s+'/'
+			r = root + '/download/'+a[0]
+			print('p er : ', p)
+			print('r er : ', r)
+			
+			try:
+				shutil.move(r,p)
+			except:
+				print('Tokst ekki að flytja skrár')	
+			
+			
+	
 
 
 
 
 
-
+removeInFolders()
 
 subfolders()
 

@@ -2,11 +2,12 @@ import os,os.path,shutil,fnmatch, pathlib
 from pprint import pprint
 import re
 import glob
+from guessit import *
 
 
 root = os.getcwd()
 directory_files = os.listdir(root)
-download = 'download'
+download = 'downloads'
 
 
 def get_paths():
@@ -48,10 +49,13 @@ def subfolders():
 	paths = get_paths()
 	l = []
 	for i in paths:
+		#print(guessit)	
+		#print(i)		
 		if '.DS_Store' in str(i):
 				continue
 		a = (i.split('/')[1:])
 		s =  re.split(r'([\d])| -', a[0])[0]
+		#print( guessit(i))
 		if len(a) > 1:
 			folders.append(a)
 			#print('a[0]: ' ,a[0])		
@@ -64,15 +68,15 @@ def subfolders():
 			#print('a er: ',a)
 			if s not in l:
 				l.append(s)
-	print(l)
+		print(guessit(s))
 	return l
 
 	
 def mkdir():
 	l = subfolders()
-	print(l)
+	#print(l)
 	for folder in l:
-		s = 'download/'+ folder
+		s = 'downloads/'+ folder
 		print(s)
 		try:
 			os.makedirs(s)
@@ -94,8 +98,8 @@ def removeInFolders():
 		s =  re.split(r'([\d])| -', a[0])[0]
 		
 		if len(a) > 1:
-			p = root +'/download/'+s+'/'
-			r = root + '/download/'+a[0]
+			p = root +'/downloads/'+s+'/'
+			r = root + '/downloads/'+a[0]
 			print('p2 er : ', p)
 			print('r2 er : ', r)
 
@@ -106,8 +110,8 @@ def removeInFolders():
 				print('Tokst ekki að flytja skrár')			
 			
 		else:
-			p = root +'/download/'+s+'/'
-			r = root + '/download/'+a[0]
+			p = root +'/downloads/'+s+'/'
+			r = root + '/downloads/'+a[0]
 			print('p er : ', p)
 			print('r er : ', r)
 			
@@ -117,10 +121,10 @@ def removeInFolders():
 			except:
 				print('Tokst ekki að flytja skrár')	
 			
-			
+
 subfolders()	
-mkdir()
-removeInFolders()
+#mkdir()
+#removeInFolders()
 
 
 

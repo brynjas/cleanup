@@ -8,21 +8,6 @@ root = os.getcwd()
 directory_files = os.listdir(root)
 download = 'download'
 
-#AllPaths = glob.glob("*/*/*")
-#pprint(AllPaths)
-
-#for file in globPaths
-#def get_subfolders():
-#l = []
-#for path in AllPaths:
-
-#	l.append(path.split('/')[1:])
-#pprint(l)
-
-
-
-
-#find_seasons= re.findall(r'S(\d+)|Season\s')
 
 def get_paths():
 	#get all folders and files in downloads 
@@ -57,8 +42,6 @@ def get_tv_shows():
 	#pprint(files)
 	return files
 
-
-
 def subfolders():
 	folders = []
 	files = []
@@ -68,13 +51,12 @@ def subfolders():
 		if '.DS_Store' in str(i):
 				continue
 		a = (i.split('/')[1:])
-		s =  re.split(r'([\d])', a[0])[0]
+		s =  re.split(r'([\d])| -', a[0])[0]
 		if len(a) > 1:
 			folders.append(a)
-			#print('a[0]: ' ,a[0])
-			
+			#print('a[0]: ' ,a[0])		
 			if s not in l:
-				s =  re.split(r'([\d])', a[0])[0]
+				s =  re.split(r'([\d])| -', a[0])[0]
 				#print('s: ',str(s))
 				l.append(s)
 		else:
@@ -82,19 +64,20 @@ def subfolders():
 			#print('a er: ',a)
 			if s not in l:
 				l.append(s)
+	print(l)
 	return l
 
 	
 def mkdir():
 	l = subfolders()
-
+	print(l)
 	for folder in l:
 		s = 'download/'+ folder
-		#print(s)
+		print(s)
 		try:
 			os.makedirs(s)
 		except:
-			pass
+			print('Gat ekki búið til möppuna ', s)
 
 	#pprint(l)
 	
@@ -108,16 +91,17 @@ def removeInFolders():
 		if '.DS_Store' in str(i):
 				continue
 		a = (i.split('/')[1:])
-		s =  re.split(r'([\d])', a[0])[0]
+		s =  re.split(r'([\d])| -', a[0])[0]
 		
 		if len(a) > 1:
 			p = root +'/download/'+s+'/'
 			r = root + '/download/'+a[0]
-			#print('p er : ', p)
-			#print('r er : ', r)
+			print('p2 er : ', p)
+			print('r2 er : ', r)
+
 			
 			try:
-				shutil.move(p, r )
+				shutil.move(r, p )
 			except:
 				print('Tokst ekki að flytja skrár')			
 			
@@ -128,25 +112,16 @@ def removeInFolders():
 			print('r er : ', r)
 			
 			try:
+				#pass
 				shutil.move(r,p)
 			except:
 				print('Tokst ekki að flytja skrár')	
 			
 			
-	
-
-
-
-
-
+subfolders()	
+mkdir()
 removeInFolders()
 
-subfolders()
-
-
-#pprint(subfolders())
-#pprint(get_tv_shows())
-#pprint(get_files())
 
 
 

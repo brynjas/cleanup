@@ -7,41 +7,83 @@ from guessit import *
 
 root = os.getcwd()
 directory_files = os.listdir(root)
-download = 'downloads'
+download = 'download'
 
 
-def get_paths():
-	#get all folders and files in downloads 
-	paths = []
-	for path, subdirs, files in os.walk(download):
-		#print( subdirs)
-		for name in files:
-			#pprint (os.path.join(path, name))
-			paths.append(os.path.join(path, name))
-	return paths #All_folder_files
+VideoTypes = ('.wmv', '.mov', '.avi', '.divx', '.mpeg', '.mpg', '.m4p', '.3gp', '.amv', '.qt', '.rm', '.swf', '.mp4', '.mkv')
+SoundTypes = ('.mp3')
+SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.usf')
 
-#pprint(get_paths())
-
-
-def get_files():
-	All_files = []
-	all_folders = []
-	for path, subdirs, files in os.walk(download):
-		#print( subdirs)
-		for name in files:
-			All_files.append(name)
-       		#pprint (os.path.join(path, name))
-	return All_files #All_folder_files
-	#return all_folders
-
-#pprint(get_files())
+				#MatchesDict([('title', 'Would I Lie to You'),
+		        #     ('season', 5),
+		        #     ('episode', 1),
+		        #     ('other', 'WideScreen'),
+		        #     ('format', 'DVB'),
+		        #     ('release_group', 'SKID'),
+		        #     ('container', 'avi'),
+		        #     ('mimetype', 'video/x-msvideo'),
+		        #     ('type', 'episode')])
 
 def get_tv_shows():
-	All_folder_files = get_files()
-	#files =	fnmatch.filter(All_folder_files, '*[Ss]\d{2}[Ee]\d{2}*')
-	files = [f for f in All_folder_files if re.search(r'([Ss]|Season)\d{2}([Ee]|Episode)\d{2}', f)]
-	#pprint(files)
-	return files
+	paths = []
+	file = []
+	episode = {}
+	for path, subdirs, files in os.walk(download):
+		for name in files:
+			paths.append(os.path.join(path, name))
+			pp = os.path.join(path, name)
+			if name.endswith(VideoTypes):
+				g = guessit(name)
+				filename = g['title'].upper()
+				if g['type'] == 'episode':
+					#episodes.append(pp)
+					try:
+						episode.setdefault(filename, set()).add(pp)
+						#episode[filename] = pp
+					except:
+						print('ex ' ,filename)
+	return episode
+
+def get_movies():
+	paths = []
+	file = []
+	movie = {}
+	movies = []
+
+	for path, subdirs, files in os.walk(download):
+		for name in files:
+			pp = os.path.join(path, name)
+			#file.append(name)
+			#pprint(name)	
+			if name.endswith(VideoTypes):
+				
+				g = guessit(name)
+				filename = g['title'].upper()
+				
+				if g['type'] == 'movie':
+					#movies.append(name)
+					try:
+						movie.setdefault(filename, set()).add(pp)
+						#movie[filename] == pp
+					except:
+						print('ex ',filename)
+
+	return movie
+
+
+pprint('movies')
+pprint(get_movies())
+pprint('tv shows')
+pprint(get_tv_shows())
+
+
+
+
+
+
+
+
+
 
 def subfolders():
 	folders = []
@@ -55,6 +97,7 @@ def subfolders():
 				continue
 		a = (i.split('/')[1:])
 		s =  re.split(r'([\d])| -', a[0])[0]
+		#pprint(guessit(s))
 		#print( guessit(i))
 		if len(a) > 1:
 			folders.append(a)
@@ -68,7 +111,7 @@ def subfolders():
 			#print('a er: ',a)
 			if s not in l:
 				l.append(s)
-		print(guessit(s))
+		
 	return l
 
 	
@@ -120,9 +163,12 @@ def removeInFolders():
 				shutil.move(r,p)
 			except:
 				print('Tokst ekki að flytja skrár')	
+
+
+
 			
 
-subfolders()	
+#subfolders()	
 #mkdir()
 #removeInFolders()
 

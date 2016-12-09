@@ -14,6 +14,7 @@ rootDownloads = root + '/' + 'downloads/'
 VideoTypes = ('.wmv', '.mov', '.avi', '.divx', '.mpeg', '.mpg', '.m4p', '.3gp', '.amv', '.qt', '.rm', '.swf', '.mp4', '.mkv')
 SoundTypes = ('.mp3')
 SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.usf')
+Deletewords = ('hdtv','xvid','-','ftp', 'x264','xvid-ftp', 'ASAP','FQM','lol','P0W4','AFG','PDTV','HDTV')
 
 				#MatchesDict([('title', 'Would I Lie to You'),
 		        #     ('season', 5),
@@ -25,19 +26,30 @@ SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.us
 		        #     ('mimetype', 'video/x-msvideo'),
 		        #     ('type', 'episode')])
 def clean():
-	for path, subdirs, files in os.walk(pathtest):
+	for path, subdirs, files in os.walk(rootDownloads):
 		#print(path, subdirs)
 		for name in files:
-			if re.match(r"(^([0-9]*[a-z]+)(.[a-z])*[' '][-])|([Ss].*[0-9]+[Ee].*[0-9]+)" , name):
-				regex = re.compile(r"(^([0-9]*[a-z]+)(.[a-z])*[' '][-])")
-				a = regex.sub(r"test.", name)
-				p = path.split('/')
-				print(p[-2],' /',p[-1], '/',name)
+			#compiled_re = re.compile(Deletewords)
+			res = re.compile(r"((hdtv|xvid|'-'|ftp|x264|asap|LOL|FQM|p0w4|afg|pdtv|AFG|XviD-FQM|XviD-LOL|cbm*).)", re.IGNORECASE)
+		
+			new_name = res.sub('', name,re.IGNORECASE)
+			newName = (path.split('/'))
+			#print(newName)
+			newName = '/'.join(newName) + '/' + new_name
+			#print(newName)
+			pp = os.path.join(path, name)
+			#print(name, ' # ',new_name)
+			try:
+				os.rename(pp, newName)
+			except:
+				pass
+
+	
 
 
 
 
-
+clean()
 
 def make_Movie_folders(movie):
 	Bio = os.getcwd() + '/downloads/Movies'
@@ -70,7 +82,7 @@ def make_Tv_folders(show):
 	TvFolder = Tv+'/'+show + '/'
 	return TvFolder
 	
-def move_shows(pp):
+def move_shows(pp, path , name):
 	Tv = os.getcwd() + '/downloads/TVSHOWS'
 	try:
 		os.makedirs(Tv)
@@ -81,7 +93,9 @@ def move_shows(pp):
 	src = root + '/'+ ThePath
 	#print('Thepath ',ThePath)
 	dst = rootDownloads + '/TVSHOWS/'
-	#print(src ,dst)
+	#print('src ',src)
+	#print('dst ',dst)
+	#print('name' , name)
 	try:
 		shutil.move(src,dst)
 	except:
@@ -91,10 +105,10 @@ def check_season_folders(pp, path, name):
 	if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season|seria|Season)[' ']*[0-9]+)|([/][0-9]+)|((ser)\D{2}[' ']*[0-9])" , path ,re.IGNORECASE):
 		e = pp + '/' + name
 		if re.search(r'([/][0-9][/]([0-9]+)|(.[0-9+][x.]*[0-9]+)|((ser)\D{2}[' ']*[0-9]))', e, re.IGNORECASE):
-			move_shows(pp)
+			move_shows(pp, path,name)
 			return True
 		if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season)[' ']*[0-9]+)" , path ,re.IGNORECASE):
-			move_shows(pp)
+			move_shows(pp,path , name)
 			return True
 	return False
 
@@ -111,13 +125,10 @@ def get_tv_shows():
 		for name in files:
 			paths.append(os.path.join(path, name))
 			pp = os.path.join(path, name)
-			#if re.match(r"(^[Ss].*[0-9]+[Ee].*[0-9]+)" , pp):
-			#	print('path is ',pp)
+
 			if check_season_folders(pp, path, name):
 				continue
 			
-					
-
 			if name.endswith(VideoTypes):
 				g = guessit(name)
 				try:
@@ -131,7 +142,7 @@ def get_tv_shows():
 						try:
 							episode.setdefault(filename, set()).add(pp)
 							#episode[filename] = pp
-							#shutil.move(pp, dst)
+							shutil.move(pp, dst)
 						except:
 							print('ex ' ,filename)
 				except:
@@ -143,7 +154,8 @@ def get_tv_shows():
 						
 	
 	return episode
-get_tv_shows()
+
+
 
 def get_movies():
 	paths = []
@@ -171,7 +183,7 @@ def get_movies():
 						try:
 							movie.setdefault(filename, set()).add(pp)
 							#movie[filename] == pp
-							#shutil.move(pp, dst)
+							shutil.move(pp, dst)
 
 						except:
 							print('ex ',filename)
@@ -182,12 +194,6 @@ def get_movies():
 
 
 	return movie
-
-
-
-
-
-
 
 
 
@@ -221,39 +227,11 @@ def removeInFolders():
 
 
 
-def subfolders():
-	folders = []
-	files = []
-	paths = get_paths()
-	l = []
-	for i in paths:
-		#print(guessit)	
-		#print(i)		
-		if '.DS_Store' in str(i):
-				continue
-		a = (i.split('/')[1:])
-		s =  re.split(r'([\d])| -', a[0])[0]
-		#pprint(guessit(s))
-		#print( guessit(i))
-		if len(a) > 1:
-			folders.append(a)
-			#print('a[0]: ' ,a[0])		
-			if s not in l:
-				s =  re.split(r'([\d])| -', a[0])[0]
-				#print('s: ',str(s))
-				l.append(s)
-		else:
-			files.append(a)
-			#print('a er: ',a)
-			if s not in l:
-				l.append(s)
-		
-	return l
 
 	
 
 
-
+get_tv_shows()
 			
 
 #subfolders()	

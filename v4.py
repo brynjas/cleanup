@@ -8,6 +8,7 @@ from guessit import *
 root = os.getcwd()
 directory_files = os.listdir(root)
 download = 'downloads'
+rootDownloads = root + '/' + 'downloads/'
 
 
 VideoTypes = ('.wmv', '.mov', '.avi', '.divx', '.mpeg', '.mpg', '.m4p', '.3gp', '.amv', '.qt', '.rm', '.swf', '.mp4', '.mkv')
@@ -23,6 +24,20 @@ SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.us
 		        #     ('container', 'avi'),
 		        #     ('mimetype', 'video/x-msvideo'),
 		        #     ('type', 'episode')])
+def clean():
+	for path, subdirs, files in os.walk(pathtest):
+		#print(path, subdirs)
+		for name in files:
+			if re.match(r"(^([0-9]*[a-z]+)(.[a-z])*[' '][-])|([Ss].*[0-9]+[Ee].*[0-9]+)" , name):
+				regex = re.compile(r"(^([0-9]*[a-z]+)(.[a-z])*[' '][-])")
+				a = regex.sub(r"test.", name)
+				p = path.split('/')
+				print(p[-2],' /',p[-1], '/',name)
+
+
+
+
+
 
 def make_Movie_folders(movie):
 	Bio = os.getcwd() + '/downloads/Movies'
@@ -41,7 +56,7 @@ def make_Movie_folders(movie):
 
 def make_Tv_folders(show):
 	
-	Tv = os.getcwd() + '/downloads/TVShows'
+	Tv = os.getcwd() + '/downloads/TVSHOWS'
 	try:
 		os.makedirs(Tv)
 	except:
@@ -55,24 +70,64 @@ def make_Tv_folders(show):
 	TvFolder = Tv+'/'+show + '/'
 	return TvFolder
 	
+def move_shows(pp):
+	Tv = os.getcwd() + '/downloads/TVSHOWS'
+	try:
+		os.makedirs(Tv)
+	except:
+		pass
+	subfolder = pp.split('/')
+	ThePath = subfolder[0]+'/'+subfolder[1]
+	src = root + '/'+ ThePath
+	#print('Thepath ',ThePath)
+	dst = rootDownloads + '/TVSHOWS/'
+	#print(src ,dst)
+	try:
+		shutil.move(src,dst)
+	except:
+		pass
+
+def check_season_folders(pp, path, name):
+	if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season|seria|Season)[' ']*[0-9]+)|([/][0-9]+)|((ser)\D{2}[' ']*[0-9])" , path ,re.IGNORECASE):
+		e = pp + '/' + name
+		if re.search(r'([/][0-9][/]([0-9]+)|(.[0-9+][x.]*[0-9]+)|((ser)\D{2}[' ']*[0-9]))', e, re.IGNORECASE):
+			move_shows(pp)
+			return True
+		if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season)[' ']*[0-9]+)" , path ,re.IGNORECASE):
+			move_shows(pp)
+			return True
+	return False
+
+
 
 
 def get_tv_shows():
 	paths = []
 	file = []
 	episode = {}
+	
 	for path, subdirs, files in os.walk(download):
 		#pprint(subdirs)
 		for name in files:
 			paths.append(os.path.join(path, name))
 			pp = os.path.join(path, name)
+			#if re.match(r"(^[Ss].*[0-9]+[Ee].*[0-9]+)" , pp):
+			#	print('path is ',pp)
+			if check_season_folders(pp, path, name):
+				continue
+			
+					
+
 			if name.endswith(VideoTypes):
 				g = guessit(name)
 				try:
-					filename = g['title'].title()
+					filename = g['title']
+
+
+
 					if g['type'] == 'episode':
 						#episodes.append(pp)
-						dst = make_Tv_folders(filename)
+						#dst = make_Tv_folders(filename)
 						try:
 							episode.setdefault(filename, set()).add(pp)
 							#episode[filename] = pp
@@ -80,10 +135,15 @@ def get_tv_shows():
 						except:
 							print('ex ' ,filename)
 				except:
-					print('name withour title ',name)
-
+					print('name withour title ',pp,name)
+					#e = pp + '/' + name
+					#if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season)[' ']*[0-9]+)" , path ,re.IGNORECASE):
+					#	move_shows(pp)
+					#	continue
+						
 	
 	return episode
+get_tv_shows()
 
 def get_movies():
 	paths = []
@@ -102,10 +162,9 @@ def get_movies():
 				g = guessit(name)
 				try:
 					filename = g['title'].title()
-					
+
 					
 					if g['type'] == 'movie':
-					#movies.append(name)
 						dst = make_Movie_folders(filename)
 						#print(pp, dst)
 
@@ -123,9 +182,6 @@ def get_movies():
 
 
 	return movie
-
-get_movies()
-get_tv_shows()
 
 
 

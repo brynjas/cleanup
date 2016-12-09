@@ -15,7 +15,7 @@ VideoTypes = ('.wmv', '.mov', '.avi', '.divx', '.mpeg', '.mpg', '.m4p', '.3gp', 
 SoundTypes = ('.mp3')
 SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.usf')
 Deletewords = ('hdtv','xvid','-','ftp', 'x264','xvid-ftp', 'ASAP','FQM','lol','P0W4','AFG','PDTV','HDTV')
-
+knownTvShows = ('Dexter', 'The big bang Theory','Top Chef', 'Top Gear', 'Weed','Would i lie to you', 'True Detective','Modern Family', 'Næturvaktin','New girl', 'mad men', '30 rock', 'masterchef','just a minute', 'house of cards','house','hell kitchen', 'game of thrones','Dragon den','desperate','daredevil', 'advantures time', '8 out of 10 cats')
 				#MatchesDict([('title', 'Would I Lie to You'),
 		        #     ('season', 5),
 		        #     ('episode', 1),
@@ -49,59 +49,6 @@ def check_if_folder_exist_for_show(dst,foldername):
 		return True
 	return False
 
-
-def move_shows(thepath, path , name):
-	dst = os.getcwd() + '/downloads/Tvshows'
-	try:
-		os.makedirs(dst)
-	except:
-		pass
-
-	subfolder = thepath.split('/')
-	title = subfolder[1]
-	folder2Remove = ''
-
-	if len(subfolder) == 4:
-		pass
-		#folder2Remove = subfolder[2]
-	if len(subfolder) == 3:
-		pass
-		#folder2Remove = subfolder + '/'
-
-	folderTitle = re.split('([Ss]\s*[0-9]+\s*[Ee]\s*[0-9]+)|(season|Seria|Seasons|Season|uk|USA)', title ,re.IGNORECASE)
-	folderTitle = (re.sub(r'[^\w]', ' ', folderTitle[0])).title()
-	#print('foldername ', folderTitle)
-	
-
-	if name.endswith(VideoTypes):  # tharf ad laga thegar thad er rar skra
-		try:
-			os.makedirs(dst +'/' + folderTitle)
-		except:
-			pass
-
-		
-		if check_if_folder_exist_for_show(dst,folderTitle):
-			dst = dst + '/' + folderTitle + '/'
-				
-			try:
-				#print('shutil.move ' ,path, dst )
-				shutil.move(path,dst)
-			except: 
-				print('exist EX ', path,dst)
-
-		else:
-			dst = dst + '/' + folderTitle + '/'
-
-			try:
-					#pass
-					#print('else makedir ', dst +'/' + foldername)
-				#print('else shutil.move ' ,path,dst)
-				shutil.move(path,dst)
-			except: 
-				print('exist not ', path,dst)
-
-
-
 def check_season_folders(thepath, path, name):
 	if re.search(r"(([Ss][0-9]+([Ee][0-9]+)?)|(Season|seria|Season)[' ']*[0-9]+)|([/][0-9]+)|((ser)\D{2}[' ']*[0-9])" , path ,re.IGNORECASE):
 		e = thepath + '/' + name
@@ -112,36 +59,116 @@ def check_season_folders(thepath, path, name):
 			move_shows(thepath,path , name)
 			return True
 	return False
+def make_movie_folders(path,Themovie):
 
+	Movies = os.getcwd() + '/downloads/Movies'
+	
+	#print('path name', path, show)
+	movie = guessit(Themovie)
+	title = movie['title']
+
+	pathtitle =  Movies +'/' + title
+	path = os.getcwd() + '/downloads/' + path
+
+	try:
+		os.makedirs(Movies)
+		#print ('make : ', Movies)
+	except:
+		#print ('Didnt make : ', Movies)
+		pass
+
+	try:
+		os.makedirs(pathtitle)
+		print ('make : ', pathtitle)
+	except:
+		pass
+		#print ('Didnt make : ', pathtitle)
+	# now remove the file to new folder 
+	try:
+		#print('trying to move', path , pathtitle+ '/')
+		shutil.move(path, pathtitle+'/')
+		print ('Remove : ', path , pathsesion)
+
+	except:
+		print ('Didnt Remove : ', path , pathsesion)
+	
+	return None
+	
+
+def make_Tv_folders(path,show):
+
+	Tv = os.getcwd() + '/downloads/TVShows'
+	
+	#print('path name', path, show)
+	tvshow = guessit(show)
+	title = tvshow['title']
+	sesion =  tvshow['season']
+	
+	pathtitle =  Tv +'/' + title
+	folder = pathtitle + '/sesion ' 
+	pathsesion = str(sesion)
+	pathsesion = folder + pathsesion
+	print(pathsesion)
+
+	try:
+		os.makedirs(Tv)
+		print ('make : ', Tv)
+	except:
+		print ('Didnt make : ', Tv)
+
+	try:
+		os.makedirs(pathtitle)
+		print ('make : ', pathtitle)
+	except:
+		print ('Didnt make : ', pathtitle)
+	try:
+		os.makedirs(pathsesion)
+	except:
+		print ('Didnt make : ', pathsesion)
+	# now remove the file to new folder 
+	try:
+		shutil.move(path,(pathsesion+'/'))
+
+	except:
+		print ('Didnt Remove : ', path , pathsesion)
+	
+	return None
+	
 
 def get_tv_shows():
-
+	unsorted = {}	
 	episode = {}
 	for path, subdirs, files in os.walk(download):
 		for name in files:
 			#paths.append(os.path.join(path, name))
 			thepath = os.path.join(path, name)
-			if check_season_folders(thepath, path, name):
-				continue # færi alla möppuna í check_season...
 
+			
 			if name.endswith(VideoTypes):
 				g = guessit(name)
 				try:
 					filename = g['title']
+					#print('filename ', filename)
+
+					if re.search(r"((^[Ss][0-9]+([Ee][0-9]+))|(Season|seria|Season)[' ']*[0-9]+)|(^[0-9]{2,10}^[' '])|((ser)\D{2}[' ']*[0-9])" , filename ,re.IGNORECASE) or g['type'] == 'episode':
+						unsorted.setdefault(filename, set()).add(pp)
+						#print('filename ', filename)
+						continue
 
 					if g['type'] == 'episode':
-						#dst = make_Tv_folders(filename)
+						
+						dst = make_Tv_folders(thepath,name)
+						
 						try:
 							episode.setdefault(filename, set()).add(pp)
-							#episode[filename] = pp
-							print('Get tv shows shutil ', pp, dst)
-							#shutil.move(pp, dst)
 						except:
 							pass
-							#print('ex ' ,filename)
 				except:
-					print('name withour title ',pp,name)	
-	return episode
+					pass
+					#print('name withour title ',thepath,name)	
+	
+
+	return unsorted
 
 
 
@@ -152,78 +179,36 @@ def get_tv_shows():
 
 
 def get_movies():
-
+	unsorted = {}
 	movie = {}
 	for path, subdirs, files in os.walk(download):
-		#print('subdir ', subdirs)
 		for name in files:
-			pp = os.path.join(path, name) # the src path 	
-			if name.endswith(VideoTypes):
-				if check_season_folders(pp,path ,name) == True:
-					continue
-
+			thepath = os.path.join(path, name) # the src path 	
+			if name.endswith(VideoTypes) or name.endswith(SubTypes):
 				g = guessit(name)
 				try:
 					filename = g['title'].title()
-
+					if re.search(r"((^[Ss][0-9]+([Ee][0-9]+))|(Season|seria|Season)[' ']*[0-9]+)|(^[0-9]{3,20})|((ser)\D{2}[' ']*[0-9])" , filename ,re.IGNORECASE):
+						unsorted.setdefault(filename, set()).add(thepath)
+						#print('filename ', filename)
+						continue
 					if g['type'] == 'movie':
-						dst = make_Movie_folders(filename)
+						pprint(thepath)
+						dst = make_movie_folders(name,thepath)
 						try:
-							movie.setdefault(filename, set()).add(pp)
-							shutil.move(pp, dst)
-
+							movie.setdefault(filename, set()).add(thepath)
 						except:
-							print('ex ',filename)
+							pass
+							#print('ex ',filename)
 				except:
-					print('name without title ', name)
+					pass
+					#print('name without title ', name)
 
 	return movie
 
-def make_Movie_folders(movie):
-	Bio = os.getcwd() + '/downloads/Movies'
-	try:
-		os.makedirs(Bio)
-	except:
-		pass
-	# make folders for all the movies and shows 
-	try:
-		os.makedirs(Bio+'/'+movie)
-	except:
-		pass
-	MovieFolder = Bio+'/'+movie + '/'
-	
-	return MovieFolder
 
 
-def removeInFolders():
-	#make_New_Folders()
-	
-	movies = get_movies()
-
-	for i in movies.keys():
-		l = list(movies[i])
-		#print(l)
-		for path in l:
-			movie = path.split('/')
-			if len(movie) == 2:
-				src = path
-				dst =  os.getcwd() + '/downloads/Movies/'+ i + '/'
-				#print(src,dst)
-				try:
-					shutil.move(src,dst)
-				except:
-					print('cant move', src, dst )
-
-			if len(movie) > 2:
-				folder = movie[1]
-				folderCheck = folder.split(' ')[0]
-				fileCheck = folderCheck.split('.')
-				if fileCheck == folderCheck:
-					try:
-						shutil(src , dst)
-					except:
-						print('cant move', src, dst )
-				
+			
 
 
 
@@ -231,11 +216,12 @@ def removeInFolders():
 
 
 
-	
+#print(guessit('Breaking.Bad.S04E01.HDTV.XviD-FQM.Box.Cutter.srt'))	
 
 
-get_tv_shows()
-removeInFolders()
+#get_tv_shows()
+get_movies()
+#removeInFolders()
 
 
 

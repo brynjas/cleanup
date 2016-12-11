@@ -6,10 +6,6 @@ from guessit import *
 
 
 root = os.getcwd()
-#directory_files = os.listdir(root)
-#download = 'downloads'
-#rootDownloads = root + '/' + 'downloads/'
-#CleanFolder = 
 
 JunkFolder = ('EXTRAS', 'extras' , 'sample', 'Sample','.DS_Store')
 JunkFiles = ('.nfo', '.dat', '.txt', '.torrent', '.sfv', '.ini', '.jpeg','URL', '.db', '.url', 'jpg','png', 'sample.avi','Sample.avi', 'sample.mkv' , 'Sample.mkv','sample.mp4' , 'Sample.mp4','sample','.gif','rar')
@@ -17,10 +13,10 @@ VideoTypes = ('.wmv', '.mov', '.avi', '.divx', '.mpeg', '.mpg', '.m4p', '.3gp', 
 SoundTypes = ('.mp3')
 SubTypes = ('.jss', '.smx', '.sup', '.srt', '.ssa', '.fab', '.sst', '.tfa', '.usf')
 Deletewords = ('hdtv','xvid','-','ftp', 'x264','xvid-ftp', 'ASAP','FQM','lol','P0W4','AFG','PDTV','HDTV')
-knownTvShows = ('Dexter', 'The big bang Theory','Top Chef', 'Top Gear', 'Weed','Would i lie to you', 'True Detective','Modern Family', 'Næturvaktin','New girl', 'mad men', '30 rock', 'masterchef','just a minute', 'house of cards','house','hell kitchen', 'game of thrones','Dragon den','desperate','daredevil', 'advantures time', '8 out of 10 cats')
+knownTvShows = ['BORED TO DEATH','DEXTER','BREAKING BAD' ,'THE BIG BANG THEORY','TOP CHEF', 'TOP GEAR', 'WEED','WOULD I LIE TO YOU', 'TRUE DETECTIVE','MODERN FAMILY', 'NÆTURVAKTIN','NEW GIRL', 'MAD MEN', '30 ROCK', 'MASTERCHEF',' JUST A MINUTE', 'HOUSE OF CARDS','HOUSE','HELL KITCHEN', 'GAME OF THRONES','DRAGON DEN','DESPERATE','DAREDEVIL', 'ADVENTURE TIME', '8 OUT OF 10 CATS', 'SHARK TANK','SPOOKS','THAT 70S SHOW','ITS ALWAYS SUNNY IN PHILADELPHIA','PSYCH','FRASiER']
 
 def clean(CleanFolder):
-	CleanFolder = CleanFolder 
+	####This doesnt do so much because i am terrible in regex
 	print('clean()')
 	for path, subdirs, files in os.walk(CleanFolder):
 		#print(path, subdirs)
@@ -36,58 +32,36 @@ def clean(CleanFolder):
 			except:
 				pass
 
-
-
 def make_movie_folders(CleanFolder,path,Themovie):
-	#print('make movie folder ',Themovie)
 	nonRemovedMovies = {}
-	#Movies = os.getcwd() + '/downloads/Movies'
 	Movies = CleanFolder + '/Movies'
 	movie = guessit(Themovie)
 	title = movie['title']
-	#print(Movies)
-
-	pathtitle =  Movies +'/' + title
-	#path = os.getcwd() + '/downloads/' + path
-	subpath = path.split('/')[:-1]
-	subpath = ''.join(subpath)
-
-	#for files in os.listdir(subpath):
-	#	print(files)
-
-
 	
+	pathtitle =  Movies +'/' + title
+	subpath = path.split('/')[:-1]
+	subpath = ''.join(subpath)	
 	try:
 		os.makedirs(Movies)
 	except:
 		pass
-		#print('no')
 	try:
 		os.makedirs(pathtitle)
 	except:
 		pass
-		
-		#print ('MOvei Didnt make : ', pathtitle)
-	# now move the file to new folder 
 	try:
 		shutil.move(path, pathtitle+'/' )
-		#print('YYYYEEESS')
 	except:
-		#print ('Movie Didnt Remove : ', path , pathtitle+'/')
 		nonRemovedMovies.setdefault(Themovie, set()).add(path)
-	return nonRemovedMovies
-
-
-	
+	return nonRemovedMovies	
 
 def make_Tv_folders(CleanFolder,path,show):
 	nonRemovedTv = {}
-	#Tv = os.getcwd() + '/downloads/TVShows'	
 	Tv = CleanFolder + '/TVShows'
 	tvshow = guessit(show)
 	title = tvshow['title']
 	sesion =  tvshow['season']
-	
+	sesion = 'unknown'
 	pathtitle =  Tv +'/' + title
 	folder = pathtitle + '/sesion ' 
 	# this is a dirty mix to get it to  one string
@@ -102,13 +76,10 @@ def make_Tv_folders(CleanFolder,path,show):
 		os.makedirs(pathtitle)
 	except:
 		pass
-		#print ('Didnt make : ', pathtitle)
 	try:
 		os.makedirs(pathsesion)
 	except:
-		#print ('Tv Didnt make : ', pathsesion)
 		pass
-	# now move the file to new folder 
 
 	try:
 		shutil.move(path,(pathsesion))
@@ -178,44 +149,60 @@ def get_movies(CleanFolder):
 					#print('name without title ', name)
 			
 				
-
-
-
-
 	#unsorted_files(unsorted)
+	return unsorted
+
+#This is a Test function
+def dicts(CleanFolder):
+	CleanFolder = CleanFolder 
+	unsorted = {}	
+	for path, subdirs, files in os.walk(CleanFolder):
+		for name in files:
+			thepath = os.path.join(path, name)			
+			unsorted.setdefault(name, set()).add(thepath)	
+
 	return unsorted
 
 
 
-def unsorted_files(files):
 
+
+def unsorted_files(CleanFolder):
+	#CleanFolder = '/Users/orcbygg/Documents/python/cleanup/downloads/'
+	files = dicts(CleanFolder) 
 	for key in files.keys():
-		
 		file = list(files[key])
-		f = open('unsortedMovies.txt','a+')
-		#f.write(file)
+		# i er hvert stak i listanum
+		#filepath er path i lista 
 		for path in file:
-			pprint(path)
-			s = path.split('/')[3:]
-			f.write(s + "\n")
 			filepath = path.split('/')
-			for i in filepath:
-				if re.search(knownTvShows, i, re.IGNORECASE):
-					print('ja')
+			for show in filepath:
+				a = re.sub('[^A-Za-z0-9\.]*', '', show)
+								#print('a ',a)
+				if show.upper() in knownTvShows or a.upper() in knownTvShows:
+					r = '/'.join(filepath[0:-2])
 
+					try:
+						shutil.move(r, CleanFolder + '/TVShows')
+					except:
+						pass
+				if show.endswith(SoundTypes):
 
+					r = '/'.join(filepath[0:-1])
+					try:
+						os.makedirs(CleanFolder + '/Music')
+					except:
+						pass
+
+					try:
+						shutil.move(r, CleanFolder + '/Music/')
+					except:
+						pass
 
 
 	return None
-		
 
-			
-
-
-
-
-
-def remove_junk(CleanFolder):
+def remove_junk(CleanFolder, mybool):
 	print('remove junk()')
 	for paths, subdirs, files in os.walk(CleanFolder):
 		for name in files:
@@ -224,20 +211,21 @@ def remove_junk(CleanFolder):
 			#if name.endswith(JunkFiles):# or re.search((r'($[r][0-9]{2})'), name, re.IGNORECASE): 
 				os.remove(os.path.join(paths, name))
 			
-		remove_empty(paths)
+		remove_empty(paths, mybool)
 
 
 
-def remove_empty(ThePath):
+def remove_empty(ThePath , mybool):
 	if os.path.isdir(ThePath):
 		folders = os.listdir(ThePath)
 		if len(folders) > 0:
 			for folder in folders:
 				if os.path.isdir(os.path.join(ThePath, folder)):
-					#if re.search('sample', folder, re.IGNORECASE):
-					#	print('folder ',os.path.join(ThePath , folder) )
-					#	os.rmdir(os.path.join(ThePath , folder))
-					remove_empty(os.path.join(ThePath , folder))
+
+					if re.search(r'(sample|extras|extra|samples)', folder, re.IGNORECASE) and bool == 1:
+						shutil.rmtree(os.path.join(ThePath , folder), ignore_errors=True)
+						os.rmdir(os.path.join(ThePath , folder))
+					remove_empty(os.path.join(ThePath , folder), mybool)
 		if len(os.listdir(ThePath)) == 0:
 			print('removing folder ', ThePath)
 			os.rmdir(ThePath)
@@ -255,43 +243,34 @@ def remove_empty_folders(CleanFolder):
 			if len(allFiles) == 0:
 				shutil.rmtree(r, ignore_errors=True)
 
-		
-			
-			
-#remove_junk()
-#get_tv_shows()
-#get_movies()
+
 
 def main():
-	#ask for messy folder
-	CleanFolder = '/Users/orcbygg/Documents/python/cleanup/downloads'
-	#CleanFolder = input('Enter or drag (make sure its not space in the end) the folder you want to clean: ')
-	#os.chdir(CleanFolder)
-	#CleanFolder = CleanFolder + '/'
-	#print('Clean the folder ' , CleanFolder)
+	#CleanFolder = '/Users/orcbygg/Documents/python/cleanup/downloads'
+	CleanFolder = input('Enter or drag (MAKE SURE its not space in the END!!!) the folder you want to clean: ')
+	os.chdir(CleanFolder)
+	myBool = 0
+	samples = input('If you want to delete all sample files and Extra press 1 if not press 0')
+	if samples == '1':
+		myBool = 1
 
 	clean(CleanFolder)
-	#get_tv_shows(CleanFolder)
+	get_tv_shows(CleanFolder)
 	get_movies(CleanFolder)	
+	unsorted_files(CleanFolder)
 
-	#samples = input('If you want to delete all sample files press 1 if not press 0')
-	#if samples == '1':
-	#	pass
 
-	#Extras = input('If you want to delete all EXTRAS  press 1 if not press 0')
-	#if Extras == '1':
-	#	pass
+
 	print('Allmost done!! ')
-	remove_junk(CleanFolder)
+	remove_junk(CleanFolder, myBool)
 	remove_empty_folders(CleanFolder)
 
 
 	
 
 if __name__ == "__main__":
+
 	main()
-
-
 
 
 
